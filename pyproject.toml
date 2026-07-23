@@ -9,7 +9,7 @@ description = "Auditable NumPy implementation and partial replication of deep he
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-authors = [{name = "Alpha Kabinet Touré", email = "alpha.toure.kabinet@gmail.com"}]
+authors = [{name = "Alpha Kabinet TOURE", email = "alpha_kabinet.toure@asr-lab.online"}]
 keywords = [
   "deep hedging",
   "transaction costs",
