@@ -1,41 +1,130 @@
 name: Publish package to PyPI
 
 on:
+  # Publication manuelle depuis l’onglet Actions.
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Confirm the PyPI publication"
+        required: true
+        default: "DO_NOT_PUBLISH"
+        type: choice
+        options:
+          - "DO_NOT_PUBLISH"
+          - "PUBLISH"
+
+  # Publication automatique lors de l’envoi d’un tag v*.
   push:
     tags:
       - "v*"
+
+concurrency:
+  group: pypi-publication-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build Python distribution
+    name: Build and verify distributions
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Un lancement manuel n’est accepté que depuis main
+    # et après sélection explicite de PUBLISH.
+    if: >-
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main' &&
+        inputs.confirm == 'PUBLISH'
+      )
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-          cache: pip
 
-      - name: Install build tools
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install project and release tools
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install build twine
+          python -m pip install --upgrade build twine
+          python -m pip install -e ".[dev]"
+
+      - name: Run automated tests
+        run: python -m pytest -q
+
+      - name: Validate package version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_REF: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import tomllib
+          from pathlib import Path
+
+          pyproject = Path("pyproject.toml")
+
+          if not pyproject.exists():
+              raise SystemExit("ERROR: pyproject.toml was not found.")
+
+          with pyproject.open("rb") as file:
+              data = tomllib.load(file)
+
+          try:
+              version = data["project"]["version"]
+          except KeyError as exc:
+              raise SystemExit(
+                  "ERROR: [project].version is missing from pyproject.toml."
+              ) from exc
+
+          pattern = r"^[0-9]+(?:\.[0-9]+){2}(?:[a-zA-Z0-9.\-]+)?$"
+
+          if not re.fullmatch(pattern, version):
+              raise SystemExit(
+                  f"ERROR: invalid package version in pyproject.toml: {version}"
+              )
+
+          event_name = os.environ["EVENT_NAME"]
+          release_ref = os.environ["RELEASE_REF"]
+
+          if event_name == "push":
+              expected_tag = f"v{version}"
+
+              if release_ref != expected_tag:
+                  raise SystemExit(
+                      "ERROR: Git tag and package version do not match. "
+                      f"Expected {expected_tag}, received {release_ref}."
+                  )
+
+          print(f"Validated package version: {version}")
+          PY
+
+      - name: Remove previous build outputs
+        run: rm -rf build dist *.egg-info src/*.egg-info
 
       - name: Build wheel and source distribution
         run: python -m build
 
-      - name: Verify distributions
+      - name: Verify package metadata
         run: python -m twine check dist/*
 
-      - name: Upload distributions
-        uses: actions/upload-artifact@v4
+      - name: Display generated distributions
+        run: |
+          echo "Generated distributions:"
+          ls -lah dist/
+
+      - name: Upload Python distributions
+        uses: actions/upload-artifact@v7
         with:
           name: python-distributions
           path: dist/
@@ -43,8 +132,9 @@ jobs:
           retention-days: 7
 
   publish:
-    name: Publish distribution to PyPI
+    name: Publish distributions to PyPI
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
 
     environment:
@@ -55,11 +145,14 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download distributions
-        uses: actions/download-artifact@v4
+      - name: Download Python distributions
+        uses: actions/download-artifact@v8
         with:
           name: python-distributions
           path: dist/
 
-      - name: Publish distributions to PyPI
+      - name: Display files to publish
+        run: ls -lah dist/
+
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
