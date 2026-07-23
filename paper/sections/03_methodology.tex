@@ -1,0 +1,332 @@
+\section{Discrete-Time Hedging Problem}
+\label{sec:problem}
+% ---------------------------------------------------------------------------
+
+\subsection{Trading dates, payoff, and self-financing gain}
+
+Let
+\[
+  0=t_0<t_1<\cdots<t_n=T
+\]
+be the trading grid, and let $S_k:=S_{t_k}$ be the underlying price. The
+liability is a short European call
+\[
+  H(S_n)=(S_n-K)_+.
+\]
+At $t_k$, for $k=0,\ldots,n-1$, the hedger holds $\delta_k$ units of the
+underlying over $[t_k,t_{k+1}]$. Set $\delta_{-1}=0$. The self-financing gain
+from the risky asset is
+\[
+  G_T(\delta)=\sum_{k=0}^{n-1}\delta_k(S_{k+1}-S_k).
+\]
+Interest rates are set to zero in all simulations.
+
+Define the trade at date $t_k$ by
+\[
+  u_k:=\delta_k-\delta_{k-1},\qquad k=0,\ldots,n-1.
+\]
+For a general formulation, set $\delta_n=0$ and define the terminal liquidation
+trade $u_n=-\delta_{n-1}$. The total trading cost is
+\[
+  C_T(\delta)=\sum_{k=0}^{n}c_k(u_k).
+\]
+Following the numerical convention used in the experiments reported below,
+terminal liquidation is free: $c_n\equiv0$. Thus the risky position is valued
+through its final gain over $[t_{n-1},T]$, and no additional fee is charged for
+closing it at maturity. This convention must be distinguished from a model
+with a positive terminal liquidation cost.
+
+Given initial cash $p_0$, terminal profit and loss is
+\begin{equation}
+  \Pi_T(p_0,\delta)
+  =p_0-H(S_n)+G_T(\delta)-C_T(\delta),
+  \label{eq:pnl}
+\end{equation}
+and terminal loss is
+\begin{equation}
+  L_T(p_0,\delta)
+  :=-\Pi_T(p_0,\delta)
+  =H(S_n)-p_0-G_T(\delta)+C_T(\delta).
+  \label{eq:loss}
+\end{equation}
+The numerical tables use $p_0=0$. They therefore report an uncentered liability
+loss, not the net hedging error after receipt of an option premium.
+
+\subsection{Transaction-cost functions}
+
+For $k<n$, the two specifications are
+\begin{align}
+  c_k^{\mathrm{lin}}(u)&=\kappa S_k|u|,
+  \label{eq:lin_cost}\\
+  c_k^{\mathrm{quad}}(u)&=\kappa S_k u^2.
+  \label{eq:quad_cost}
+\end{align}
+The parameter $\kappa$ is dimensionless under the chosen convention. For
+proportional costs, $\kappa=0.01$ means a one-way cost equal to one percent of
+the traded notional, which is high for a liquid equity and should be interpreted
+as a stress level rather than as a universal market calibration.
+
+\subsection{Translation of the loss origin}
+
+\begin{proposition}[Cash translation]
+For any deterministic cash amount $a$ and any policy class $\mathcal{D}$,
+\[
+  \arg\min_{\delta\in\mathcal{D}}
+  \CVaR_{\alpha}\!\left(L_T(p_0+a,\delta)\right)
+  =
+  \arg\min_{\delta\in\mathcal{D}}
+  \CVaR_{\alpha}\!\left(L_T(p_0,\delta)\right).
+\]
+Moreover, absolute CVaR differences between two policies are invariant to the
+cash shift, whereas ratios and percentage improvements generally are not.
+\end{proposition}
+
+\begin{proof}
+Equation~\eqref{eq:loss} gives
+$L_T(p_0+a,\delta)=L_T(p_0,\delta)-a$. CVaR is cash-equivariant, so
+$\CVaR_{\alpha}(L-a)=\CVaR_{\alpha}(L)-a$. The same constant is subtracted
+from the objective for every policy and from both members of an absolute
+comparison. A ratio changes because its denominator is shifted.
+\end{proof}
+
+Accordingly, the primary comparisons below are stated in absolute loss units.
+Relative percentages are retained only as descriptive summaries under the
+explicit convention $p_0=0$.
+
+% ---------------------------------------------------------------------------
+
+\section{Risk Criterion and Empirical Optimization}
+\label{sec:cvar}
+% ---------------------------------------------------------------------------
+
+\subsection{Population CVaR}
+
+For an integrable loss $L$ and confidence level $\alpha\in(0,1)$, the
+Rockafellar--Uryasev representation is
+\begin{equation}
+  \CVaR_{\alpha}(L)
+  =\min_{w\in\R}
+  \left\{
+    w+\frac{1}{1-\alpha}\E\!\left[\pospart{L-w}\right]
+  \right\}.
+  \label{eq:ru}
+\end{equation}
+For a continuous loss distribution, a minimizer is the usual
+$\alpha$-quantile. With atoms, the minimizer is generally a quantile set, and
+CVaR should not be reduced uncritically to a conditional expectation given
+$L\geq\VaR_{\alpha}(L)$.
+
+The function in Equation~\eqref{eq:ru} is convex in $w$ for a fixed policy. It
+is not generally convex in the neural-network parameters.
+
+\subsection{Finite-batch empirical CVaR}
+
+For a batch of $B$ simulated losses $L_1(\theta),\ldots,L_B(\theta)$, define
+\begin{equation}
+  \widehat F_B(\theta,w)
+  =w+\frac{1}{(1-\alpha)B}
+  \sum_{i=1}^{B}\pospart{L_i(\theta)-w}.
+  \label{eq:emp_ru}
+\end{equation}
+Profiling out $w$ minimizes the \emph{empirical batch objective} exactly. It
+does not make the resulting random mini-batch criterion identical to the
+population objective, because in general
+\[
+  \E_{\mathcal B}\!\left[\min_w\widehat F_{\mathcal B}(\theta,w)\right]
+  \neq
+  \min_w\E_{\mathcal B}\!\left[\widehat F_{\mathcal B}(\theta,w)\right].
+\]
+The profiled estimator is nevertheless a standard consistent empirical
+approximation as the batch size increases under the usual regularity
+conditions.
+
+For an exact finite-sample implementation, sort the batch losses in descending
+order,
+\[
+  L_{[1]}\geq L_{[2]}\geq\cdots\geq L_{[B]},
+\]
+and let
+\[
+  q=(1-\alpha)B,\qquad r=\lfloor q\rfloor,
+  \qquad \lambda=q-r.
+\]
+Then, for $q>0$, empirical expected shortfall is
+\begin{equation}
+  \widehat{\CVaR}_{\alpha,B}
+  =\frac{1}{q}
+  \left(
+    \sum_{j=1}^{r}L_{[j]}+\lambda L_{[r+1]}
+  \right),
+  \label{eq:exact_emp_cvar}
+\end{equation}
+with the fractional term omitted when $\lambda=0$. Away from ties, an exact
+gradient is
+\begin{equation}
+  \nabla_{\theta}\widehat{\CVaR}_{\alpha,B}
+  =\frac{1}{q}
+  \left(
+    \sum_{j=1}^{r}\nabla_{\theta}L_{[j]}
+    +\lambda\nabla_{\theta}L_{[r+1]}
+  \right).
+  \label{eq:exact_emp_cvar_grad}
+\end{equation}
+At ties, this expression is interpreted as a valid subgradient after a
+specified tie-breaking rule. A hard indicator that includes only losses
+strictly above a sample quantile omits the fractional boundary observation
+whenever $(1-\alpha)B$ is non-integer. For $B=4,096$ and $\alpha=0.95$, the
+exact tail mass is $204.8$: 204 observations receive full weight and the next
+observation receives weight $0.8$.
+
+\subsection{Threshold profiling and training stalls}
+
+If $w$ is updated jointly by stochastic gradient descent, its batch derivative
+is
+\[
+  \frac{\partial\widehat F_B}{\partial w}
+  =1-\frac{1}{(1-\alpha)B}
+  \sum_{i=1}^{B}\1\{L_i>w\},
+\]
+away from ties. When $w$ exceeds every loss in a batch, the policy receives no
+gradient through the positive-part terms, while $w$ moves only by its optimizer
+step. Profiling $w$ within each batch avoids this particular zero-mask event.
+This is an implementation advantage, not a proof that the stochastic
+optimization problem has become convex or noiseless.
+
+
+% ---------------------------------------------------------------------------
+
+\section{Policy Class and Analytic Gradients}
+\label{sec:methodology}
+% ---------------------------------------------------------------------------
+
+\subsection{State-only shared policy}
+
+The hedge at each date is generated by a shared-weight feedforward network,
+\begin{equation}
+  \delta_k=g_{\theta}(x_k)
+  =\delta_{\max}\tanh\!\left(f_{\theta}(x_k)\right),
+  \qquad \delta_{\max}=1.5.
+  \label{eq:policy}
+\end{equation}
+The network $f_{\theta}$ has two hidden layers with 16 $\tanh$ units per
+layer. Under GBM,
+\[
+  x_k=(\tau_k,\log(S_k/K)),\qquad \tau_k=T-t_k,
+\]
+and under Heston,
+\[
+  x_k=(\tau_k,\log(S_k/K),v_k^+).
+\]
+
+This policy class is not recurrent. In particular, it cannot map the same
+market state to different actions for different current inventories. The cost
+terms couple the outputs during training, but the gradient is not a state
+variable available at inference. Thus the architecture can fit a smoother or
+more conservative state map, but it cannot represent a genuine inventory-
+dependent no-trade region of the form
+$\delta_k=\varphi(x_k,\delta_{k-1})$. This restriction is central when
+interpreting the turnover results.
+
+\subsection{Network backward pass}
+
+For one observation, the forward pass is
+\begin{align*}
+  z_1&=xW_1+b_1, & a_1&=\tanh z_1,\\
+  z_2&=a_1W_2+b_2, & a_2&=\tanh z_2,\\
+  z_3&=a_2W_3+b_3, & \delta&=\delta_{\max}\tanh z_3.
+\end{align*}
+Given an upstream derivative $g_{\delta}=\partial\mathcal L/\partial\delta$,
+\begin{align*}
+  g_{z_3}&=g_{\delta}\,\delta_{\max}(1-\tanh^2z_3),\\
+  \nabla_{W_3}\mathcal L&=a_2^{\top}g_{z_3},
+  &\nabla_{b_3}\mathcal L&=g_{z_3},\\
+  g_{a_2}&=g_{z_3}W_3^{\top},
+  &g_{z_2}&=g_{a_2}\odot(1-a_2^2),\\
+  \nabla_{W_2}\mathcal L&=a_1^{\top}g_{z_2},
+  &\nabla_{b_2}\mathcal L&=g_{z_2},\\
+  g_{a_1}&=g_{z_2}W_2^{\top},
+  &g_{z_1}&=g_{a_1}\odot(1-a_1^2),\\
+  \nabla_{W_1}\mathcal L&=x^{\top}g_{z_1},
+  &\nabla_{b_1}\mathcal L&=g_{z_1}.
+\end{align*}
+Because the same parameters are used at every date, the parameter gradients are
+summed over $k=0,\ldots,n-1$ before each optimizer update.
+
+\subsection{Indexed transaction-cost gradient}
+
+Let $u_j=\delta_j-\delta_{j-1}$ for $j<n$ and
+$u_n=-\delta_{n-1}$. From Equation~\eqref{eq:loss},
+\begin{equation}
+  \frac{\partial L_T}{\partial\delta_k}
+  =-(S_{k+1}-S_k)+c_k'(u_k)-c_{k+1}'(u_{k+1}),
+  \qquad k=0,\ldots,n-1,
+  \label{eq:delta_gradient_general}
+\end{equation}
+where $c_n'\equiv0$ under the free-terminal-liquidation convention. The
+important index is $k+1$ in the second cost derivative. For an interior date,
+the subsequent transaction cost is scaled by $S_{k+1}$, not by $S_k$.
+
+For proportional costs and $u\neq0$,
+\begin{equation}
+  c_j'(u)=\kappa S_j\operatorname{sign}(u).
+  \label{eq:linear_subgrad}
+\end{equation}
+At $u=0$, the subdifferential is
+$\kappa S_j[-1,1]$; the implementation uses zero as a valid subgradient. For
+quadratic costs,
+\begin{equation}
+  c_j'(u)=2\kappa S_j u.
+  \label{eq:quadratic_grad}
+\end{equation}
+
+\subsection{Gradient checks}
+
+Table~\ref{tab:gradcheck} reproduces the archived centered finite-difference
+check for a small network using step size $10^{-5}$. The reported relative-error
+convention is
+\[
+  \frac{|g_{\mathrm{ana}}-g_{\mathrm{FD}}|}
+  {\max\{1,|g_{\mathrm{ana}}|,|g_{\mathrm{FD}}|\}}.
+\]
+
+\begin{table}[htbp]
+\centering
+\caption{Analytic network backward pass versus centered finite differences
+($\epsilon=10^{-5}$).}
+\label{tab:gradcheck}
+\begin{tabular}{lcc}
+\toprule
+Parameter & Maximum absolute difference & Maximum reported relative error \\
+\midrule
+$W_1$ & $1.65\times10^{-9}$ & $1.39\times10^{-9}$ \\
+$b_1$ & $3.14\times10^{-10}$ & $5.91\times10^{-11}$ \\
+$W_2$ & $5.07\times10^{-11}$ & $9.35\times10^{-10}$ \\
+$b_2$ & $1.30\times10^{-10}$ & $3.09\times10^{-11}$ \\
+$W_3$ & $5.85\times10^{-11}$ & $1.89\times10^{-11}$ \\
+$b_3$ & $7.73\times10^{-11}$ & $1.28\times10^{-11}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The existing quadratic-cost pathwise check reports a maximum absolute deviation
+of $2.5\times10^{-10}$ and a maximum relative deviation of
+$1.0\times10^{-9}$. The current repository additionally tests the $S_{k+1}$ index, the
+fractional empirical-CVaR boundary weight, and the inventory-aware backward
+pass. An independent automatic-differentiation comparison of the complete
+profiled empirical-CVaR parameter gradient remains outstanding.
+
+\subsection{Optimization}
+
+Parameters are updated with Adam \citep{kingma2015}, using learning rate
+$3\times10^{-3}$, $\beta_1=0.9$, and $\beta_2=0.999$. Fresh Monte Carlo
+batches of 4,096 paths are generated at every iteration. The reported
+experiments use 1,200--1,500 updates depending on the configuration. This is
+on-the-fly Monte Carlo stochastic optimization rather than optimization over a
+fixed finite training set.
+
+For exact reproducibility, the Adam stabilizer $\varepsilon$, parameter dtype,
+random-number generator, seed, feature scaling, initialization distribution,
+iteration count by experiment, and checkpoint-selection rule must also be
+archived. These items cannot be inferred from the reported point estimates.
+
+% ---------------------------------------------------------------------------

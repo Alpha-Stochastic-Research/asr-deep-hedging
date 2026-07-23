@@ -1,0 +1,39 @@
+name: Scientific or methodological issue
+description: Report a concern about equations, estimators, simulators, benchmarks, or claims.
+title: "[Scientific]: "
+labels: ["scientific-review"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Loss and premium convention
+        - Transaction costs and liquidation
+        - CVaR estimator
+        - GBM or Heston simulator
+        - Policy information set or gradients
+        - Benchmark calibration
+        - Statistical inference
+        - Manuscript claim
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: concern
+    attributes:
+      label: Concern
+      description: State the claim, equation, file, or experiment affected.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or counterexample
+      description: Provide a derivation, reference, numerical example, or minimal test.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed correction

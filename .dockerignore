@@ -1,0 +1,7 @@
+.git
+.venv
+__pycache__
+results/generated
+paper/*.aux
+paper/*.log
+paper/main.pdf

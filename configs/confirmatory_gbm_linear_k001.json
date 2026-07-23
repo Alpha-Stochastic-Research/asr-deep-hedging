@@ -1,0 +1,65 @@
+{
+  "experiment_name": "confirmatory_gbm_linear_k001",
+  "model": "gbm",
+  "n_steps": 30,
+  "maturity": 0.11904761904761904,
+  "s0": 100.0,
+  "strike": 100.0,
+  "mu": 0.0,
+  "sigma": 0.2,
+  "alpha": 0.95,
+  "kappa": 0.01,
+  "cost_kind": "linear",
+  "premium": 0.0,
+  "terminal_liquidation": false,
+  "benchmark_shrink": 0.8,
+  "benchmark_band": 0.05,
+  "benchmark_every": 2,
+  "train": {
+    "iterations": 1500,
+    "batch_size": 4096,
+    "network_seed": 101,
+    "sim_seed": 100000,
+    "hidden": 16,
+    "lr": 0.003,
+    "adam_eps": 1e-08,
+    "log_every": 25
+  },
+  "test": {
+    "n_paths": 30000,
+    "seed": 90001,
+    "bootstrap": 2000
+  },
+  "validation": {
+    "n_paths": 10000,
+    "seed": 70001
+  },
+  "calibration": {
+    "shrink_grid": [
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "band_grid": [
+      0.005,
+      0.01,
+      0.025,
+      0.05,
+      0.075,
+      0.1,
+      0.15
+    ],
+    "frequency_grid": [
+      1,
+      2,
+      3,
+      5,
+      10,
+      15
+    ]
+  }
+}

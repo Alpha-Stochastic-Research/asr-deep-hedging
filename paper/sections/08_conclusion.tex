@@ -1,0 +1,23 @@
+\section{Conclusion}
+
+This paper documents a compact NumPy implementation of neural option hedging
+under transaction costs. Its main value is transparency: the loss convention,
+empirical-CVaR boundary weighting, transaction-cost indices, network backward
+pass, and simulation assumptions are written explicitly and connected to
+executable tests.
+
+The archived experiments support only a narrow descriptive observation. In the
+reported proportional-cost sweep, the fitted policy traded less as the cost
+coefficient increased. Its CVaR point estimate was below that of a cost-blind
+Black--Scholes delta in the four positive-cost runs and above it in the
+zero-cost run. Separate $\kappa=0.01$ runs produced different neural-policy
+values, which illustrates why repeated training is necessary before making an
+inferential comparison.
+
+No claim is made that the policy is optimal, statistically superior, robust to
+model misspecification, or a full reproduction of \citet{buehler2019}. A
+confirmatory study would require multi-seed training, validation-calibrated
+cost-aware benchmarks, paired uncertainty estimates, inventory-aware
+ablations, and balanced Heston comparisons. In its present form, the work is an
+auditable implementation study and a reproducible starting point for those
+experiments.

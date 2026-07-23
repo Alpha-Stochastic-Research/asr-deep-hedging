@@ -1,0 +1,15 @@
+name: asr-deep-hedging
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy>=1.26
+  - scipy>=1.11
+  - pandas>=2.0
+  - matplotlib>=3.8
+  - pytest>=8
+  - pip
+  - pip:
+      - pytest-cov>=5
+      - ruff>=0.5
+      - build>=1.2

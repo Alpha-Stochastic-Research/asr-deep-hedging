@@ -1,0 +1,54 @@
+\section{Validation Status and Confirmatory Plan}
+\label{sec:robustness}
+
+This section distinguishes checks that are implemented in the accompanying
+repository from analyses that remain planned. The distinction is important
+because an available script or benchmark is not the same as a reported
+confirmatory result.
+
+\subsection{Completed automated checks}
+
+In the reviewed release candidate, the automated test suite contains 14 tests
+covering empirical-CVaR boundary weights, cash translation, deterministic GBM
+simulation, a GBM martingale-mean check, Heston output constraints, basic Heston
+pricing bounds, transaction-cost indexing, network derivatives, and the
+inventory-aware backward pass. All 14 tests passed in the local validation run.
+
+The standalone centered finite-difference validator reported maximum absolute
+errors of $3.208\times10^{-10}$ for the feedforward-network backward pass and
+$5.410\times10^{-10}$ for the quadratic pathwise loss gradient. These checks
+support the corresponding local derivative implementations. They do not yet
+constitute an independent automatic-differentiation verification of the full
+profiled empirical-CVaR training objective.
+
+\subsection{Implemented but not yet reported as confirmatory evidence}
+
+The repository implements an inventory-aware policy, a shrunk Black--Scholes
+delta, reduced-frequency rebalancing, a no-trade-band rule, validation-only
+benchmark calibration, multi-seed experiment plans, and paired-bootstrap
+utilities. The archived numerical tables in Section~\ref{sec:results} predate
+that complete protocol. Consequently, the existence of these components is not
+presented as evidence that the associated comparisons have already been
+completed.
+
+\subsection{Required confirmatory design}
+
+A later confirmatory version would:
+
+\begin{enumerate}[leftmargin=2em]
+  \item freeze the source commit, environment, configuration, random seeds,
+  dtype, optimizer, and checkpoint-selection rule before final testing;
+  \item use multiple independent training seeds for every policy and cost level;
+  \item calibrate classical cost-aware benchmarks on validation paths only;
+  \item evaluate all policies on identical held-out test paths;
+  \item report paired pathwise bootstrap intervals together with variation
+  across training seeds;
+  \item compare state-only and inventory-aware policies under otherwise matched
+  settings;
+  \item equalize information sets in the Heston comparison and test parameter
+  shifts between training and evaluation; and
+  \item regenerate every table and figure from machine-readable result files.
+\end{enumerate}
+
+Until those steps are executed, the appropriate interpretation is exploratory
+and focused on implementation.

@@ -1,0 +1,55 @@
+\section{Boundary Cases for the Position Gradient}
+
+Under free terminal liquidation cost, Equation~\eqref{eq:delta_gradient_general}
+becomes
+\begin{align*}
+  \frac{\partial L_T}{\partial\delta_0}
+  &=-\Delta S_0+c_0'(\delta_0)-c_1'(\delta_1-\delta_0),\\
+  \frac{\partial L_T}{\partial\delta_k}
+  &=-\Delta S_k+c_k'(\delta_k-\delta_{k-1})
+    -c_{k+1}'(\delta_{k+1}-\delta_k),
+  \quad 0<k<n-1,\\
+  \frac{\partial L_T}{\partial\delta_{n-1}}
+  &=-\Delta S_{n-1}
+    +c_{n-1}'(\delta_{n-1}-\delta_{n-2}).
+\end{align*}
+If terminal liquidation is charged, the final line additionally contains
+$-c_n'(-\delta_{n-1})$.
+
+\section{Completed and Outstanding Gradient Checks}
+
+The current repository includes centered finite-difference checks for the
+feedforward-network backward pass, the quadratic pathwise loss gradient, and
+the inventory-aware backpropagation-through-time implementation. It also tests
+the $S_{k+1}$ index in the subsequent transaction-cost term and the fractional
+empirical-CVaR boundary weight.
+
+One stronger validation remains outstanding: a deterministic end-to-end
+comparison of the complete profiled empirical-CVaR parameter gradient with an
+independent automatic-differentiation implementation. Such a test should use a
+small fixed path array and include:
+
+\begin{enumerate}[leftmargin=2em]
+  \item quadratic costs with terminal cost both zero and nonzero;
+  \item proportional costs with trades bounded away from zero;
+  \item an interior date where both $c_k$ and $c_{k+1}$ contribute;
+  \item a batch size for which $(1-\alpha)B$ is non-integer; and
+  \item shared parameters evaluated at every trading date.
+\end{enumerate}
+
+\section{Minimum Reproducibility Record}
+
+For each reported table row, the archived record should contain:
+
+\begin{itemize}[leftmargin=2em]
+  \item source-code commit and environment lock file;
+  \item configuration file and random seeds;
+  \item simulator equations and substep count;
+  \item network architecture, initialization, dtype, and input scaling;
+  \item Adam hyperparameters including $\varepsilon$;
+  \item exact batch-CVaR routine and tie convention;
+  \item training, validation, and test sizes;
+  \item checkpoint-selection rule;
+  \item raw per-path terminal losses, gains, costs, positions, and trades; and
+  \item the script used to generate the final table and figure.
+\end{itemize}

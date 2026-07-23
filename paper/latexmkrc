@@ -1,0 +1,1 @@
+$bibtex = '/usr/bin/bibtex.original %O %B';

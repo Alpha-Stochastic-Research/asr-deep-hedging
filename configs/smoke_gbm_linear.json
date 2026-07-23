@@ -1,0 +1,33 @@
+{
+  "experiment_name": "smoke_gbm_linear",
+  "model": "gbm",
+  "n_steps": 6,
+  "maturity": 0.11904761904761904,
+  "s0": 100.0,
+  "strike": 100.0,
+  "mu": 0.0,
+  "sigma": 0.2,
+  "alpha": 0.95,
+  "kappa": 0.01,
+  "cost_kind": "linear",
+  "premium": 0.0,
+  "terminal_liquidation": false,
+  "benchmark_shrink": 0.8,
+  "benchmark_band": 0.05,
+  "benchmark_every": 2,
+  "train": {
+    "iterations": 8,
+    "batch_size": 256,
+    "network_seed": 101,
+    "sim_seed": 1000,
+    "hidden": 8,
+    "lr": 0.003,
+    "adam_eps": 1e-08,
+    "log_every": 1
+  },
+  "test": {
+    "n_paths": 2000,
+    "seed": 9001,
+    "bootstrap": 50
+  }
+}

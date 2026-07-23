@@ -1,0 +1,32 @@
+\section{Limitations}
+\label{sec:limitations}
+
+The numerical evidence is limited by design and by the available archive. The
+reported policy values come from single training runs, so the manuscript does
+not estimate sensitivity to initialization, Monte Carlo batches, or checkpoint
+selection. The principal benchmark in the archived tables is cost-blind, while
+the policy is trained with costs in its objective. This asymmetry can make the
+observed differences larger than they would be against tuned cost-aware rules.
+
+The state-only policy omits current inventory. Under transaction costs, two
+paths with the same market variables but different positions can have different
+economically relevant actions. The fitted map can trade more conservatively,
+but it cannot represent a genuinely inventory-dependent no-trade region.
+
+The positive proportional-cost levels include stress values that are high for
+many liquid equity applications. They are useful for exposing qualitative
+responses to costs, but they should not be interpreted as a universal market
+calibration.
+
+The Heston comparison is asymmetric: the neural policy observes truncated
+instantaneous variance, the benchmark uses a fixed volatility, and training and
+test paths come from the same simulator. The reported difference therefore
+measures neither out-of-distribution robustness nor a model-consistent Heston
+hedging advantage.
+
+Finally, all conclusions are conditional on the simulated GBM and Heston
+settings. The study omits jumps, market-impact feedback, latency, discrete
+contract sizes, funding asymmetries, time-varying liquidity, parameter
+uncertainty, and historical regime changes. These omissions are material for
+real deployment. The repository and manuscript are intended for research and
+reproducibility, not live trading.

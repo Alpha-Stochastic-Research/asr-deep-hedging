@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software or manuscript, please cite it as below."
+title: "ASR Deep Hedging: A Transparent NumPy Implementation and Partial Replication"
+type: software
+authors:
+  - family-names: "TOURE"
+    given-names: "Alpha Kabinet"
+    email: "alpha_kabinet.toure@asr-lab.online"
+version: 0.1.0
+date-released: 2026-07-20
+license: MIT
+repository-code: "https://github.com/AKToure/asr-deep-hedging"
+url: "https://github.com/AKToure/asr-deep-hedging"
+keywords:
+  - deep hedging
+  - transaction costs
+  - CVaR
+  - Heston model
+  - quantitative finance
+  - reproducible research

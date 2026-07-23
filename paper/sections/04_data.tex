@@ -1,0 +1,119 @@
+\section{Simulation and Experimental Design}
+\label{sec:design}
+% ---------------------------------------------------------------------------
+
+\subsection{Geometric Brownian Motion}
+
+Under GBM with zero drift,
+\[
+  S_{k+1}=S_k
+  \exp\!\left(-\frac{1}{2}\sigma^2\Delta t
+  +\sigma\sqrt{\Delta t}\,Z_{k+1}\right),
+  \qquad Z_{k+1}\sim N(0,1),
+\]
+so the grid-point simulation is exact.
+
+\subsection{Heston full-truncation discretization}
+
+The continuous-time dynamics are
+\begin{align}
+  \dd S_t&=S_t\sqrt{v_t}\,\dd W_t^S,\\
+  \dd v_t&=\kappa_v(\theta_v-v_t)\,\dd t
+  +\xi\sqrt{v_t}\,\dd W_t^v,
+  \qquad \dd\langle W^S,W^v\rangle_t=\rho\,\dd t.
+\end{align}
+Let $\widetilde v_k$ be the Euler auxiliary variable and
+$v_k^+=\max(\widetilde v_k,0)$. A fully specified full-truncation/log-Euler
+step is
+\begin{align}
+  \widetilde v_{k+1}
+  &=\widetilde v_k
+  +\kappa_v(\theta_v-v_k^+)\Delta t
+  +\xi\sqrt{v_k^+\Delta t}\,Z_{k+1}^{v},
+  \label{eq:heston_v}\\
+  \log S_{k+1}
+  &=\log S_k-\frac{1}{2}v_k^+\Delta t
+  +\sqrt{v_k^+\Delta t}\,Z_{k+1}^{S},
+  \label{eq:heston_s}
+\end{align}
+where
+\[
+  Z_{k+1}^{S}=\rho Z_{k+1}^{v}
+  +\sqrt{1-\rho^2}\,Z_{k+1}^{\perp}
+\]
+and $Z^v,Z^{\perp}$ are independent standard normals. The auxiliary variable
+$\widetilde v_{k+1}$ may be negative; non-negativity applies to the truncated
+variance $v_{k+1}^+$ used in the spot diffusion and as a network feature. This
+is the relevant property of full truncation, not literal non-negativity of the
+untruncated Euler state \citep{lord2010}.
+
+The Heston parameters used here violate the Feller condition:
+\[
+  2\kappa_v\theta_v=0.16<\xi^2=0.25.
+\]
+Consequently, discretization checks with finer substeps or a higher-accuracy
+scheme are particularly important before treating numerical differences as
+model effects.
+
+\subsection{Parameters}
+
+The common parameters are
+\[
+  S_0=K=100,\qquad T=30/252,\qquad n=30,
+  \qquad \alpha=0.95.
+\]
+For GBM, $\sigma=0.20$. For Heston,
+\[
+  v_0=\theta_v=0.04,\qquad \kappa_v=2.0,
+  \qquad \xi=0.5,\qquad \rho=-0.7.
+\]
+The archived test results use 30,000 simulated paths. A confirmatory
+comparison would evaluate all strategies on the same held-out paths and estimate
+uncertainty in their differences by paired resampling.
+
+\subsection{Benchmarks and their interpretation}
+
+The main benchmark is the Black--Scholes delta
+\[
+  \Delta_{\mathrm{BS}}(S_k,\tau_k)
+  =\Phi\!\left(
+    \frac{\log(S_k/K)+\tfrac12\sigma^2\tau_k}
+         {\sigma\sqrt{\tau_k}}
+  \right),
+\]
+with zero interest rate. It is rebalanced on the same grid and charged the same
+cost function as the neural policy.
+
+This benchmark is standard but limited. Under discrete rebalancing, it is not
+known to minimize terminal CVaR, even when transaction costs are zero. Under
+positive costs, it is deliberately cost-blind. Therefore, a lower point estimate relative to this rule concerns only
+that particular comparison and does not imply global or near-global optimality. Relevant cost-aware benchmarks include a shrunk delta
+$\lambda\Delta_{\mathrm{BS}}$, a no-trade band, less-frequent rebalancing, and
+an inventory-aware policy.
+
+In the Heston experiment, the network observes $v_k^+$, whereas the benchmark
+uses a fixed volatility of 20 percent. The comparison is therefore asymmetric
+in both information and model flexibility. It is retained only as a
+misspecified-benchmark exercise. A like-for-like Heston comparison requires at
+least a Black--Scholes delta with $\sigma_k=\sqrt{v_k^+}$, an optimized fixed
+volatility, a Heston delta, and network ablations with and without the variance
+feature.
+
+\subsection{Statistical interpretation}
+
+The experiment set reports one training realization per displayed policy and
+one finite test sample per comparison. No confidence intervals across training
+seeds are available. Accordingly:
+
+\begin{itemize}[leftmargin=2em]
+  \item differences are point estimates, not significance statements;
+  \item monotonicity in the displayed cost sweep refers to the five observed
+  point estimates only;
+  \item the difference between independently trained policies at the same
+  hyperparameters cannot be labelled ``within expected run-to-run variance''
+  without repeated runs;
+  \item confirmatory evidence requires multiple training seeds and paired
+  bootstrap intervals on a held-out test sample.
+\end{itemize}
+
+% ---------------------------------------------------------------------------

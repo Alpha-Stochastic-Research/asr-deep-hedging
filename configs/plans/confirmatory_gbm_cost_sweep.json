@@ -1,0 +1,32 @@
+{
+  "name": "confirmatory_gbm_cost_sweep",
+  "base_config": "configs/confirmatory_gbm_linear_k001.json",
+  "network_seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110
+  ],
+  "simulation_seed_base": 200000,
+  "test_seed": 90001,
+  "kappas": [
+    0.0,
+    0.0001,
+    0.0005,
+    0.001,
+    0.005,
+    0.01,
+    0.02,
+    0.04
+  ],
+  "policy_types": [
+    "state",
+    "inventory"
+  ]
+}

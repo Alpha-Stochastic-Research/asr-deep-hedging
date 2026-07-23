@@ -1,0 +1,4 @@
+strategy,mean_loss,std_loss,cvar_095
+unhedged,2.830,4.294,15.367
+black_scholes,4.976,0.803,6.981
+deep_hedging,4.376,0.758,5.719

@@ -1,0 +1,4 @@
+include README.md LICENSE LICENSE-manuscript.txt CITATION.cff
+recursive-include configs *.json
+recursive-include paper *.tex *.bib *.pdf *.md
+recursive-include docs *.md

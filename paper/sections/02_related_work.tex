@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:related}
+
+The study sits at the intersection of incomplete-market hedging, coherent risk
+measurement, and neural stochastic control. Classical option replication under
+continuous frictionless trading follows \citet{blackscholes1973} and
+\citet{merton1973}. Once proportional transaction costs or discrete trading are
+introduced, perfect replication generally fails and optimal policies may be
+characterized by asymptotic corrections, stochastic control, or variational
+inequalities \citep{leland1985,hoggardwhalleywilmott1994,whalleywilmott1997}.
+The present work does not claim that neural networks replace these analytical
+methods; rather, they provide a flexible policy class when the objective,
+frictions, and scenario generator are specified numerically.
+
+The risk criterion is Expected Shortfall, also called Conditional
+Value-at-Risk. Its optimization representation is due to
+\citet{rockafellaruryasev2000}; the coherent-risk perspective is developed by
+\citet{artzner1999} and the convex-risk framework by
+\citet{follmerschied2002}. The finite-batch distinction made in this paper is
+important because profiling the empirical threshold solves the batch problem
+exactly but does not remove sampling error relative to population CVaR.
+
+Neural approaches to derivative pricing and hedging predate modern deep
+learning \citep{hutchinson1994}. \citet{buehler2019} formulate Deep Hedging as
+direct optimization of a convex risk functional over neural trading
+strategies. Related reinforcement-learning formulations include
+\citet{kolmritter2019}, \citet{halperin2020}, and \citet{cao2021}. The current
+paper differs from these works by emphasizing auditability: a compact NumPy
+implementation, explicit pathwise derivatives, exact empirical-tail weights,
+and a transparent account of which parts of the original experiment are not
+reproduced.
+
+Stochastic-volatility simulations use the Heston model \citep{heston1993} and
+a full-truncation Euler discretization following \citet{lord2010}. Because the
+Feller condition need not hold for the selected stress parameters, the
+repository includes substep diagnostics and treats Heston comparisons as
+simulation-dependent rather than model-free evidence.

@@ -1,0 +1,91 @@
+\section{Introduction}
+
+In the frictionless Black--Scholes--Merton model, continuous trading in the
+underlying and money-market account permits exact replication of a European
+option under the standard assumptions \citep{blackscholes1973,merton1973}.
+Implemented strategies instead trade on a finite grid and may incur transaction
+costs. The resulting hedging problem balances residual risk against trading
+activity and is generally different from continuous-time frictionless
+replication. Analytical and numerical approaches remain available in structured
+frictional models, including asymptotic approximations, stochastic control, and
+variational inequalities
+\citep{leland1985,hoggardwhalleywilmott1994,whalleywilmott1997}.
+
+\citet{buehler2019} formulate hedging with generic frictions as a discrete-time
+stochastic-control problem and approximate admissible strategies with neural
+networks. Their framework supports nonlinear risk criteria and multiple hedging
+instruments. The present work does not attempt to reproduce their complete
+architecture or empirical design. It studies a smaller setting in which a
+shared-weight NumPy network hedges a European call under empirical CVaR.
+
+The aims of this paper are limited and technical:
+
+\begin{enumerate}[leftmargin=2em]
+  \item state the loss, trading-cost convention, empirical-CVaR estimator, and
+  analytic derivatives in a form that can be checked line by line;
+  \item compare the manual derivatives with centered finite differences and
+  document which validation steps are complete or still outstanding;
+  \item preserve the archived numerical results while describing them as
+  single-run observations rather than evidence of statistical dominance; and
+  \item separate the present state-only, stock-only experiments from the
+  broader Deep Hedging framework on which they are based.
+\end{enumerate}
+
+The paper is best read as an implementation and reproducibility study. It does
+not propose a new deep-hedging algorithm, establish optimality, or claim that a
+neural policy generally dominates classical hedging rules.
+
+\section{Scope Relative to the Deep Hedging Literature}
+\label{sec:scope}
+
+Table~\ref{tab:scope} summarizes the main differences between the reported
+experiment in \citet{buehler2019} and the present implementation. The comparison
+is included to prevent a qualitative resemblance from being mistaken for a
+full numerical reproduction.
+
+\begin{table}[htbp]
+\centering
+\caption{Scope of the present implementation relative to the original Deep
+Hedging experiment.}
+\label{tab:scope}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}
+                >{\raggedright\arraybackslash}p{0.31\textwidth}
+                >{\raggedright\arraybackslash}p{0.34\textwidth}}
+\toprule
+Component & \citet{buehler2019} & Present study \\
+\midrule
+Policy state
+& Market information and the preceding position enter the semi-recurrent policy.
+& Time and log-moneyness enter the GBM policy; truncated variance is added under
+Heston. The previous position is absent from the reported state-only results. \\
+\addlinespace
+Time parametrization
+& The reported numerical study uses date-specific parameters; recurrent variants
+are also discussed.
+& One shared-weight network is evaluated at every trading date. \\
+\addlinespace
+Network
+& The reported implementation uses two hidden layers, ReLU activations, and batch
+normalization.
+& Two hidden layers with 16 $\tanh$ units each and no batch normalization. \\
+\addlinespace
+Heston instruments
+& Stock and an idealized variance swap.
+& Stock only. \\
+\addlinespace
+Heston comparison
+& A model-consistent complete-market comparison using both instruments.
+& A fixed-volatility Black--Scholes delta with less information than the neural
+policy. \\
+\addlinespace
+Primary criterion
+& General convex risk measures and indifference-pricing experiments.
+& Empirical $\CVaR_{0.95}$ of terminal loss under a fixed cash convention. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Accordingly, the numerical section examines whether the fitted policy displays
+lower trading intensity and different tail-loss point estimates in the chosen
+simulations. It does not test equivalence to the original architecture,
+instrument set, or Heston comparison.
