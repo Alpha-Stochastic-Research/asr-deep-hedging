@@ -4,12 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asr-deep-hedging"
-version = "0.1.0"
-description = "Auditable NumPy implementation and partial replication of deep hedging"
+version = "0.2.0"
+description = "Auditable NumPy implementation for deep hedging under transaction costs"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-authors = [{name = "Alpha Kabinet TOURE", email = "alpha_kabinet.toure@asr-lab.online"}]
+
+authors = [
+  {name = "Alpha Kabinet TOURE", email = "alpha_kabinet.toure@asr-lab.online"}
+]
+
 keywords = [
   "deep hedging",
   "transaction costs",
@@ -18,6 +22,7 @@ keywords = [
   "quantitative finance",
   "reproducible research",
 ]
+
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
@@ -25,6 +30,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Topic :: Scientific/Engineering :: Mathematics",
 ]
+
 dependencies = [
   "numpy>=1.26",
   "scipy>=1.11",
@@ -41,9 +47,12 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/AKToure/asr-deep-hedging"
-Repository = "https://github.com/AKToure/asr-deep-hedging"
-Issues = "https://github.com/AKToure/asr-deep-hedging/issues"
+Homepage = "https://github.com/Alpha-Stochastic-Research/asr-deep-hedging"
+Repository = "https://github.com/Alpha-Stochastic-Research/asr-deep-hedging"
+Issues = "https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/issues"
+Paper = "https://doi.org/10.5281/zenodo.21519919"
+PyPI = "https://pypi.org/project/asr-deep-hedging/"
+Changelog = "https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
