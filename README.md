@@ -5,7 +5,7 @@
 ### Auditable neural option hedging under transaction costs
 
 [![CI](https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/actions/workflows/ci.yml/badge.svg)](https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/actions/workflows/ci.yml)
-[![Paper](https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/actions/workflows/paper.yml/badge.svg)](https://github.com/Alpha-Stochastic-Research/asr-deep-hedging/actions/workflows/paper.yml)
+
 [![PyPI version](https://img.shields.io/pypi/v/asr-deep-hedging?logo=pypi&logoColor=white)](https://pypi.org/project/asr-deep-hedging/)
 [![Python versions](https://img.shields.io/pypi/pyversions/asr-deep-hedging?logo=python&logoColor=white)](https://pypi.org/project/asr-deep-hedging/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21519919.svg)](https://doi.org/10.5281/zenodo.21519919)
