@@ -32,7 +32,7 @@ jobs:
           latexmk_use_xelatex: false
           args: -pdf -interaction=nonstopmode -halt-on-error -file-line-error
       - run: cp paper/main.pdf paper/manuscript.pdf
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: manuscript-${{ github.sha }}
           path: paper/manuscript.pdf
